@@ -55,21 +55,23 @@ $rep = $O_BDD->Connect_DataBase("localhost", "site", "root");
       </div>
 
       <div class="container">
-        <!-- Example row of columns -->
-        <div class="row">
-          <div class="col-md-4">
-              <h2>Liste du personelle </h2>
-            <p><a class="btn btn-secondary" href="list.php" role="button">View details &raquo;</a></p>
-          </div>
-          <div class="col-md-4">
-            <h2>Gestion des utilisateur</h2>
-            <p><a class="btn btn-secondary" href="gestion.php" role="button">View details &raquo;</a></p>
-          </div>
+          <?php
+            $O_BDD->GetList();
+          ?>
         </div>
 
         <hr>
 
-      </div> <!-- /container -->   
+      </div> <!-- /container -->
+        <?php
+            if($rep!=null){
+                ?>
+                <div class="alert alert-success" role="alert">
+                    <strong>OK</strong> <?php echo $rep; ?></a>.
+                </div>
+                <?php
+            }
+        ?>
     </main>
 
     <footer class="container">

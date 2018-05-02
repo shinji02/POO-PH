@@ -34,8 +34,7 @@ class C_BDD
 	 * @param Num_Tel
 	 */
         public function Add_User_Client($Name,$First_Name,int $Age,$Bith_Date,$Email,$Num_Tel){
-            
-            $request_table_user = "INSERT INTO User (Name,FirstName,Age,Birth_Date,Id_Employee,Id_Custommers) VALUES (?,?,?,?,?,?)";
+            $request_table_user = "INSERT INTO user (Name,FirstName,Age,Birth_Date,Id_Customers,Id_Employee) VALUES (?,?,?,?,?,?)";
             $insert_new_user = $this->M_BDD->prepare($request_table_user);
             $insert_new_user->execute(array($Name,$First_Name,$Age,$Bith_Date,0,0));
             
@@ -45,9 +44,9 @@ class C_BDD
             $insert_new_customer = $this->M_BDD->prepare($request_table_customer);
             $insert_new_customer->execute(array($Email,$Num_Tel));
             
-            $last_id_user = $this->M_BDD->lastInsertID();
+            $last_id_user_cust = $this->M_BDD->lastInsertID();
             
-            $request_update = "UPDATE User SET Id_Employee = ".$last_id_user." WHERE id=".$last_id_user;
+            $request_update = "UPDATE user SET id_Customers = ".$last_id_user_cust." WHERE id=".$last_id_user;
             $update_user = $this->M_BDD->prepare($request_update);
             $update_user->execute();
         }
@@ -66,13 +65,16 @@ class C_BDD
 	 */
 	public function Add_User_Employee($Name, $First_Name, int $Age, $Bith_Date, $Email, $Rang, int $Salary)
 	{
-            $request_table_user = "INSERT INTO User (Name,FirstName,Age,Birth_Date,Id_Employee,Id_Custommers) VALUES (?,?,?,?,?,?)";
+  
+            $request_table_user = "INSERT INTO user (Name,FirstName,Age,Birth_Date,Id_Customers,Id_Employee) VALUES (?,?,?,?,?,?)";
             $insert_new_user = $this->M_BDD->prepare($request_table_user);
-            $insert_new_user->execute(array($Name,$First_Name,$Age,$Bith_Date,0,0));
+            $resul= $insert_new_user->execute(array($Name,$First_Name,$Age,$Bith_Date,0,0));
+            
+            print_r($this->M_BDD->errorInfo());
             
             $last_id_user = $this->M_BDD->lastInsertID();
             
-            $request_table_employee = "INSERT INTO Employee (Email,Rang,Salary) VALUES (?,?,?)";
+            $request_table_employee = "INSERT INTO employee (Email,Rang,Salary) VALUES (?,?,?)";
             $insert_new_employee = $this->M_BDD->prepare($request_table_employee);
             $insert_new_employee->execute(array($Email,$Rang,$Salary));
             
@@ -176,17 +178,24 @@ class C_BDD
 	 */
 	public function GetList()
 	{
-            $list = array();
-            $request = "SELECT * FROM User";
+            $request = "SELECT * FROM user";
             $sth = $this->M_BDD->prepare($request);
             $sth->execute();
             $recieve=$sth->fetchAll();
             foreach ($recieve as $row){
+                echo '<br>';
+                echo '<hr>';
+                echo '<br>';
                 echo 'Numéro Utilisateur: '.$row['id'];
+                echo '<br>';
                 echo "Nom de l'Utilisateur: ".$row['Name'];
+                echo '<br>';
                 echo "Prénon de l'Utilisateur: ".$row['FirstName'];
+                echo '<br>';
                 echo "Date de naissance: ".$row['Birth_Date'];
+                echo '<br>';
                 echo "Age: ".$row['Age'];
+                echo '<br>';
                 
                 $id_place = null;
                 if($row['Id_Employee']!=0){
@@ -197,8 +206,11 @@ class C_BDD
                     $recieve_employee = $sth_employee->fetchAll();
                     foreach ($recieve_employee as $row2){
                         echo "Email : ".$row2['Email'];
+                        echo '<br>';
                         echo 'Rang: '.$row2['Rang'];
-                        echo 'Salaire: '.$row2['Salary'];
+                        echo '<br>';
+                        echo 'Salaire: '.$row2['Salary'].' Euro';
+                        echo '<br>';
                     }
                 }
                 if($row['id_Customers']!=0){
@@ -209,19 +221,71 @@ class C_BDD
                     $recieve_Customer = $sth_Customer->fetchAll();
                     foreach ($recieve_Customer as $row3){
                         echo "Email : ".$row3['Email'];
+                        echo '<br>';
                         echo 'Numéro de téléphone: '.$row3['Num_Tel'];
+                        echo '<br>';
                     }
                 }
             }
             
 	}
 
+        /**
+         * Cette fonction permet permet de récupérer les information d'un utlisateur
+         * 
+         * @param id_utilisateur
+         */
+        public function getInfo(int $id){
+            $list = array();
+            $request = "SELECT * FROM user WHERE id=".$id;
+            $sth = $this->M_BDD->prepare($request);
+            $sth->execute();
+            $rep = $sth->fetchAll();
+            foreach ($rep as $row){
+                $list ['id'] = $row['id'];
+                $list ['name'] = $row['Name'];
+                $list ['firstname'] = $row['FirstName'];
+                $list ['age'] = $row['Age'];
+                $list ['birth'] = $row['Birth_Date'];
+                $list ['Id_Employee'] = $row['Id_Employee'];
+                $list ['id_Customers'] = $row['id_Customers'];
+                if($row['Id_Employee']!=0){
+                    
+                    $request_select_employee = "SELECT * FROM employee WHERE id=".$row['Id_Employee'];
+                    $sth_employee = $this->M_BDD->prepare($request_select_employee);
+                    $sth_employee->execute();
+                    $rep_employee = $sth_employee->fetchAll(); 
+                    foreach ($rep_employee as $row1){
+                        $list ['Email'] = $row1['Email'];
+                        $list ['Rang'] = $row1['Rang'];
+                        $list ['Salary'] = $row1['Salary'];
+                    }
+                        
+                }
+                if($row['id_Customers']!=0){
+                    $request_select_customers = "SELECT * FROM customer WHERE id=".$row['id_Customers'];
+                    $sth_customers = $this->M_BDD->prepare($request_select_customers);
+                    $sth_customers->execute();
+                    $rep_customers = $sth_customers->fetchAll(); 
+                    
+
+                    foreach ($rep_customers as $row2){
+                        $list ['Email'] = $row2['Email'];
+                        $list ['num_tel'] = $row2['Num_Tel'];
+                    }
+                }
+            }
+            return $list;
+        }
+
+
+        
 	/**
 	 * Cette fonction permet de ce d�connecter de la base de donn�e. 
 	 */
 	public function Logout_DataBase()
 	{
-            echo 'Deconnection de la base de donnée';
+         //  echo 'Deconnection de la base de donnée';
             $this->M_BDD=null;
 	}
 
@@ -237,7 +301,7 @@ class C_BDD
             $request = "UPDATE ".$Table." SET ".$Field_Update." = ".$Val." WHERE id = ".$ID;
             $sth = $this->M_BDD->prepare($request);
             $sth->execute();
-            echo 'Update réusi';
+           // echo 'Update réusi';
             
 	}
         
@@ -247,43 +311,62 @@ class C_BDD
          * @param  id
          * @param emp_cus 
          */
-        public function Delete(int $ID,int $emp_cus){
+        public function Delete(int $ID){
             
-            if($emp_cus==1){
-                $request_get_ID = "SELECT * FROM user WHERE id=".$ID;
-                
-                $sth = $this->M_BDD->prepare($request_get_ID);
-                $sth->execute();
-                $rep = $sth->fetchAll();
-                
-                $id_customer = $rep['id_Customers'];
-                
-                $request_remove_customer = ("DELETE FROM customer WHERE id=".$id_customer);
-                $sth2 = $this->prepare($request_remove_customer);
-                $sth2->execute();
-                
-                $request_remove_user = ("DELETE FROM user WHERE id=".$ID);
-                $sth3 = $this->prepare($request_remove_user);
-                $sth3->execute();
-            }
-            else {
-                $request_get_ID = "SELECT * FROM user WHERE id=".$ID;
-                
-                $sth = $this->M_BDD->prepare($request_get_ID);
-                $sth->execute();
-                $rep = $sth->fetchAll();
-                
-                $id_employee = $rep['Id_Employee'];
-                
-                $request_remove_employee = ("DELETE FROM employee WHERE id=".$id_employee);
-                $sth2 = $this->prepare($request_remove_employee);
-                $sth2->execute();
-                
-                $request_remove_user = ("DELETE FROM user WHERE id=".$ID);
-                $sth3 = $this->prepare($request_remove_user);
-                $sth3->execute();               
+            $is_user_employee=0;
+            $is_user_customer=0;
+            
+            $request_get_ID = "SELECT * FROM user WHERE id=".$ID;
+            $sth = $this->M_BDD->prepare($request_get_ID);
+            $sth->execute();
+            $rep = $sth->fetchAll();
+            foreach ($rep as $row){
+                 $is_user_employee = $row['Id_Employee'];
+                 $is_user_customer = $row['id_Customers'];
             }
             
+            if($is_user_customer!=0){
+                $request_remove_customer = ("DELETE FROM customer WHERE id=".$is_user_customer);
+                $sth2 = $this->M_BDD->prepare($request_remove_customer);
+                $sth2->execute();
+            }
+            else if ($is_user_employee!=0){
+                $request_remove_employee = ("DELETE FROM employee WHERE id=".$is_user_employee);
+                $sth2 = $this->M_BDD->prepare($request_remove_employee);
+                $sth2->execute();
+            }
+            
+            $request_remove_user = ("DELETE FROM user WHERE id=".$ID);
+            $sth3 = $this->M_BDD->prepare($request_remove_user);
+            $sth3->execute();
+            header('Location: gestion.php');
+        }
+        
+        public function getlistIDEmployee(){
+            $list = array();
+            $request = "SELECT * FROM user WHERE Id_Employee>0";
+            $sth = $this->M_BDD->prepare($request);
+            $sth->execute();
+            $rep = $sth->fetchAll();
+            $id=1;
+            foreach ($rep as $row){
+                $list [$id] = $row['id'];
+                $id = $id+1;
+            }
+            return $list;
+        }
+        public function getlistcustomer(){
+            $list = array();
+            $request = "SELECT * FROM user WHERE id_Customers>0";
+            $sth = $this->M_BDD->prepare($request);
+            $sth->execute();
+            $rep = $sth->fetchAll();
+            $id=1;
+            foreach ($rep as $row){
+                $list [$id] = $row['id'];
+                $id = $id+1;
+            }
+            return $list;
         }
 
 }
