@@ -1,9 +1,4 @@
 <?php
-
-
-namespace Diagram_Class;
-
-
 /**
  * Cette classe permet d'acc�der � la base de donn�e
  * @author Jovann Serreau
@@ -20,12 +15,10 @@ class C_BDD
 
 	function __construct()
 	{
-            echo 'Constucteur de la classe C_BDD';
 	}
 
 	function __destruct()
 	{
-            echo 'Desctucteur de la classe C_BDD';
 	}
 
 
@@ -102,7 +95,7 @@ class C_BDD
 	{
             try{
                 $this->M_BDD = new PDO('mysql:host='.$Addresse.';dbname='.$DataBase.'',$Username,$Password);
-                echo 'Connection avec la base de donnée efféctuer';
+                return "Connection avec la base donnée : Valider";
             } catch (Exception $e){
                 die("Erreur: ".$e->getMessage());
             }
