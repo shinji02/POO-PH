@@ -176,6 +176,7 @@ class C_BDD
 	 */
 	public function GetList()
 	{
+            $list = array();
             $request = "SELECT * FROM User";
             $sth = $this->M_BDD->prepare($request);
             $sth->execute();
@@ -186,7 +187,33 @@ class C_BDD
                 echo "Prénon de l'Utilisateur: ".$row['FirstName'];
                 echo "Date de naissance: ".$row['Birth_Date'];
                 echo "Age: ".$row['Age'];
+                
+                $id_place = null;
+                if($row['Id_Employee']!=0){
+                    $id_place = $row['Id_Employee'];
+                    $request_employee = "SELECT * FROM employee WHERE id=".$id_place;
+                    $sth_employee = $this->M_BDD->prepare($request_employee);
+                    $sth_employee->execute();
+                    $recieve_employee = $sth_employee->fetchAll();
+                    foreach ($recieve_employee as $row2){
+                        echo "Email : ".$row2['Email'];
+                        echo 'Rang: '.$row2['Rang'];
+                        echo 'Salaire: '.$row2['Salary'];
+                    }
+                }
+                if($row['id_Customers']!=0){
+                    $id_place = $row['id_Customers'];
+                    $request_Customer = "SELECT * FROM customer WHERE id=".$id_place;
+                    $sth_Customer = $this->M_BDD->prepare($request_Customer);
+                    $sth_Customer->execute();
+                    $recieve_Customer = $sth_Customer->fetchAll();
+                    foreach ($recieve_Customer as $row3){
+                        echo "Email : ".$row3['Email'];
+                        echo 'Numéro de téléphone: '.$row3['Num_Tel'];
+                    }
+                }
             }
+            
 	}
 
 	/**
@@ -194,6 +221,7 @@ class C_BDD
 	 */
 	public function Logout_DataBase()
 	{
+            echo 'Deconnection de la base de donnée';
             $this->M_BDD=null;
 	}
 

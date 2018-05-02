@@ -99,3 +99,6 @@ $rep = $O_BDD->Connect_DataBase("localhost", "site", "root");
     <script src="css/dist/js/bootstrap.min.js"></script>
   </body>
 </html>
+<?php 
+    $O_BDD->Logout_DataBase();
+?>
