@@ -212,6 +212,51 @@ class C_BDD
             echo 'Update réusi';
             
 	}
+        
+        /**
+         * Cette fonction permet de suprimer un utilisateur
+         * 
+         * @param  id
+         * @param emp_cus 
+         */
+        public function Delete(int $ID,int $emp_cus){
+            
+            if($emp_cus==1){
+                $request_get_ID = "SELECT * FROM user WHERE id=".$ID;
+                
+                $sth = $this->M_BDD->prepare($request_get_ID);
+                $sth->execute();
+                $rep = $sth->fetchAll();
+                
+                $id_customer = $rep['id_Customers'];
+                
+                $request_remove_customer = ("DELETE FROM customer WHERE id=".$id_customer);
+                $sth2 = $this->prepare($request_remove_customer);
+                $sth2->execute();
+                
+                $request_remove_user = ("DELETE FROM user WHERE id=".$ID);
+                $sth3 = $this->prepare($request_remove_user);
+                $sth3->execute();
+            }
+            else {
+                $request_get_ID = "SELECT * FROM user WHERE id=".$ID;
+                
+                $sth = $this->M_BDD->prepare($request_get_ID);
+                $sth->execute();
+                $rep = $sth->fetchAll();
+                
+                $id_employee = $rep['Id_Employee'];
+                
+                $request_remove_employee = ("DELETE FROM employee WHERE id=".$id_employee);
+                $sth2 = $this->prepare($request_remove_employee);
+                $sth2->execute();
+                
+                $request_remove_user = ("DELETE FROM user WHERE id=".$ID);
+                $sth3 = $this->prepare($request_remove_user);
+                $sth3->execute();               
+            }
+            
+        }
 
 }
 ?>
